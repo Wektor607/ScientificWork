@@ -606,5 +606,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
         }
     }
     free(sub_copy);
+    if(best != -1)
+        *timer += best;
     return best;
 }

@@ -100,5 +100,7 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
     }
     free(subcopy);
     free(subcopy_copy);
+    if(best != -1)
+        *timer += best;
     return best;
 }

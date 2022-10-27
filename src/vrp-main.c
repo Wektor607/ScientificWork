@@ -189,13 +189,11 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
          temp[0] = town0;
 
          td = subtourdistanceTw(temp, l, &m, timer, endTime);
-         timer += td;
          
          while(td == -1) 
          {
             timer = town0.mTimeStart;
             td = subtourdistanceTw(temp, l, &m, timer, endTime);
-            timer += td;
             if(td == -1) {l--; g--;}
          }
          
@@ -239,7 +237,6 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
             } else {
                td = subtourdistanceTw(temp, l, &m, timer, endTime);
             }
-            timer += td;
             if(td == -1){days++;}
 
             while(td == -1) 
@@ -251,7 +248,6 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
                } else {
                   td = subtourdistanceTw(temp, l, &m, timer, endTime);
                }
-               timer += td;
                if(td == -1) {l--; g--;}
             }
             write_cvrptw_subtour(res_distance, temp, l); 
@@ -278,9 +274,9 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
       clock_t end = clock();
       double seconds = (double)(end - start) / CLOCKS_PER_SEC;
       full_time += seconds;
-      if(full_time > 20)
+      if(stop == 1)
       {
-         stop = 1;
+         break;
       }
       // printf("Печать перемешанного тура: ");
       // for(int i = 0; i < newCountTowns; i++) {
