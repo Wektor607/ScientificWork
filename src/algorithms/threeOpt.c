@@ -98,10 +98,12 @@ double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
             }
         }
     }
-    free(subcopy);
-    // Это делается в vrp-main.c
-    if(best != -1)
-        *timer += best;  
     
+    if(best != -1)
+    {
+        *timer += best;  
+    }
+    
+    free(subcopy);
     return best;
 }

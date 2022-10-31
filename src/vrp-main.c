@@ -260,16 +260,19 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
          fprintf(out, "%lf\t%lf\n", (distanceInTourNew * 60 * 1000 / 3600), (clock() - runtime) / CLOCKS_PER_SEC);
          distanceInTourBest = distanceInTourNew;
       } 
-      if(distanceInTourNew < distanceInTourBest) {
+      if(distanceInTourNew < distanceInTourBest) 
+      {
          distanceInTourBest = distanceInTourNew;
          // printf("\nAll days: %d %lf\n", days, distanceInTourBest); 
          write_cvrptw_end_tour(res_distance, distanceInTourBest);
          /*distanceInTourBest * 60 * 1000 / 3600*/
          fprintf(out, "%lf\t%lf\n", (distanceInTourNew * 60 * 1000 / 3600), (clock() - runtime) / CLOCKS_PER_SEC);
       }
-      else {
+      else 
+      {
          write_cvrptw_end_tour(res_distance, -1);
       }
+
       distanceInTourNew = 0.0;
       clock_t end = clock();
       double seconds = (double)(end - start) / CLOCKS_PER_SEC;
@@ -278,6 +281,7 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
       {
          break;
       }
+      printf("Время оптимизации: %lf Длина маршрута: %lf\n", full_time, distanceInTourBest);
       // printf("Печать перемешанного тура: ");
       // for(int i = 0; i < newCountTowns; i++) {
       //    printf("%d ", sub[i].t.name);
