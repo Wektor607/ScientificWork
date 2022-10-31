@@ -281,7 +281,7 @@ void CVRPTW(double (*algfunc)(twtown*, int , halfmatrix*, double*, const double,
       {
          break;
       }
-      printf("Время оптимизации: %lf Длина маршрута: %lf\n", full_time, distanceInTourBest);
+      printf("Время оптимизации: %lf Длина маршрута: %lf\n", full_time, distanceInTourBest * 60 * 1000 / 3600);
       // printf("Печать перемешанного тура: ");
       // for(int i = 0; i < newCountTowns; i++) {
       //    printf("%d ", sub[i].t.name);

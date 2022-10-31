@@ -47,12 +47,10 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
         sub_old_current[i] = sub[i];
     }
 
-    double best_Energy = 0, current_Energy = 0, p;
-    best_Energy = subtourdistanceTw(sub_current, lenSub, m, *timer, endTime);
-    current_Energy = best_Energy;
+    double candidate_Energy, p, current_Energy = 0;
+    current_Energy = subtourdistanceTw(sub_current, lenSub, m, *timer, endTime);
 
     int T = tmax;
-    double candidate_Energy;
 
     for(int k = 0; T >= tmin; T = tmax / (k + 1), k++) {
         GenerateStateCandidateTw(sub_current, lenSub);
@@ -66,7 +64,7 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
                 sub_old_current[i] = sub_current[i];
             }
         }
-        else if(candidate_Energy != -1 && candidate_Energy >= current_Energy)
+        else if(candidate_Energy >= current_Energy && candidate_Energy != -1)
         {
             p = exp((current_Energy - candidate_Energy) / T);
             if(p >= (rand() / RAND_MAX))
