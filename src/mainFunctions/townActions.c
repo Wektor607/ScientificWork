@@ -51,8 +51,41 @@ void doShuffleTw(int counttown, twtown *towns)
     }
 }
 
+void depoShift(int lenSub, twtown *sub)
+{
+    twtown *subcopy = (twtown *) calloc(lenSub, sizeof(twtown));
+    int start = 0;
+    for (int e = 0; e < lenSub; ++e)
+    {
+        if (sub[e].t.name == 0)
+        {
+            start = e;
+            break;
+        }
+    }
+
+    if(start != 0)
+    {
+        for (int i = 0; i < lenSub; ++i)
+        {
+            if (i < start)
+                subcopy[lenSub - start + i] = sub[i];
+            else
+                subcopy[i - start] = sub[i];
+        }
+
+        for(int i = 0; i < lenSub; ++i)
+        {
+            sub[i] = subcopy[i];
+        }
+    }
+
+    free(subcopy);
+}
+
 double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, const double timer, const double endTime)
 {
+    depoShift(lenSub, sub);
     if (lenSub == 0)
     {
         return 0;

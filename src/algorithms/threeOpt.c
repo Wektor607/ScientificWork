@@ -6,7 +6,6 @@
 
 double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns, int dist_param) // timer - is a now time. Global time on the world.
 {
-
     /*
     2-opt
     0: Or O  O
@@ -18,6 +17,8 @@ double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
     5: O  [Or O ]
     6: O  [O  Or]
     */
+    depoShift(lenSub, sub);
+    
     twtown *subcopy = (twtown*)malloc(lenSub * sizeof(twtown));
     //цикл копирования sub -> subcopy
     for(int i = 0; i < lenSub; i++)

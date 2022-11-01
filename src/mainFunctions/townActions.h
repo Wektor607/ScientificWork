@@ -10,6 +10,8 @@ void printtwtown(const twtown t);
 
 void swapTw(twtown *town1, twtown *town2);
 
+void depoShift(int lenSub, twtown *sub);
+
 void doShuffleTw(int counttown, twtown *towns);
 
 double subtourdistanceTw(twtown *sub, int lenSub, halfmatrix *m, const double timer, const double endTime);
