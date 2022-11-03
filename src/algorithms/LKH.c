@@ -48,11 +48,14 @@ bool compair_idx(int idx1, int idx2, int lenSub)
 void new_tour_create(twtown *T_old, twtown *T_new, int lenSub, Edge *X, Edge *Y, int i, twtown (*neighbours)[2], int *indexes, int *Xindex, int *Yindex)
 {
     // printf("START\n");
-    print_edges(X, i);
-    print_edges(Y, i);
+    //print_edges(X, i);
+    //print_edges(Y, i);
     bool direction = 1;
-    for (int e_new = 0, e_old = 0; e_new < lenSub; ++e_new)
+    T_new[0] = T_old[0];
+    for (int e_new = 1, prev = 0, e_old = 1; e_new < lenSub; ++e_new)
     {
+        print_tour(T_new, lenSub);
+        printf("%d\n", T_new[e_new-1].t.name);
         bool change_edge = 0;
         /* printf("%d\n", e_old);
         printf("%d\n", Xindex[e_old]);
@@ -64,7 +67,8 @@ void new_tour_create(twtown *T_old, twtown *T_new, int lenSub, Edge *X, Edge *Y,
         /* printf("ne upal\n"); */
         for (int x = 0; x <= i; ++x)
         {
-            if (X[x].node1.t.name == T_old[e_old].t.name || X[x].node2.t.name == T_old[e_old].t.name)
+            if (X[x].node1.t.name == T_old[prev].t.name && X[x].node2.t.name == T_old[e_old].t.name ||
+                X[x].node1.t.name == T_old[e_old].t.name && X[x].node2.t.name == T_old[prev].t.name)
             {
                 change_edge = 1;
                 break;
@@ -75,29 +79,25 @@ void new_tour_create(twtown *T_old, twtown *T_new, int lenSub, Edge *X, Edge *Y,
         if (!change_edge) /* не меняем ребро */
         {
             T_new[e_new] = T_old[e_old];
-            e_new++;
+            prev = e_old;
             if (direction)
             {
-                e_old = e_old == lenSub - 1 ? 0 : e_old + 1;
-                T_new[e_new] = T_old[e_old];
                 e_old = e_old == lenSub - 1 ? 0 : e_old + 1;
             }
             else
             {
                 e_old = e_old == 0 ? lenSub - 1 : e_old - 1;
-                T_new[e_new] = T_old[e_old];
-                //printf("%d %d %d\n", T_old[e_old].t.name, e_old, e_new);
-                e_old = e_old == 0 ? lenSub - 1 : e_old - 1;
             }
-            if (e_new >= lenSub-1)
-                break;
         }
         else /* меняем ребро */
         {
             printf("here\n");
-            if (e_new == 0) /* не начинаем с измененённого ребра */
+            if (e_new == 1) /* не начинаем с измененённого ребра */
             {
-                e_old++;
+                prev = e_old;
+                e_old = e_old == lenSub - 1 ? 0 : e_old + 1;
+                T_new[0] = T_old[prev];
+                printf("bad start %d\n", T_new[0].t.name);
                 e_new--;
                 continue;
             }
@@ -118,7 +118,7 @@ void new_tour_create(twtown *T_old, twtown *T_new, int lenSub, Edge *X, Edge *Y,
                 }
             }
             printf("YES\n");
-            /* Цикл работающий до тех пор пока в T_new записываем подряд Y или пока не закончится тур */
+            /* Цикл работающий до тех пор пока в T_new записываем подряд Y */
             while(e_new < lenSub-1)
             {
                 int flag_neighb = 0;
@@ -126,6 +126,7 @@ void new_tour_create(twtown *T_old, twtown *T_new, int lenSub, Edge *X, Edge *Y,
                 {
                     /* edge_tmp - два вариант ребер на старом туре, которые соединены с Y */
                     Edge edge_tmp = edge_init(T_new[e_new], neighbours[indexes[T_new[e_new].t.name]][neighb]);
+                    print_edges(&edge_tmp, 0);
                     int flag = 1;
                     /* Проверяем ялвяется ли edge_tmp теми ребрами, которые необходимо убрать из тура */
                     //int flag_old = 1;
@@ -134,6 +135,7 @@ void new_tour_create(twtown *T_old, twtown *T_new, int lenSub, Edge *X, Edge *Y,
                         if (edge_equal(edge_tmp, X[n]))
                         {
                             // flag = 0;
+                            print_edges(&edge_tmp, 0);
                             flag = 0;
                             break;
                         }
@@ -163,22 +165,25 @@ void new_tour_create(twtown *T_old, twtown *T_new, int lenSub, Edge *X, Edge *Y,
                     // Поиск номера следующего ребра в старом туре и проверка направления относительно старого тура
                     if (flag)
                     {
+                        print_edges(&edge_tmp, 0);
+                        printf("%d\n", edge_tmp.node2.t.name);
                         int edge = 0;
-                        bool miniflag = 0;
                         for(; edge < lenSub; ++edge)
                         {
                             if(edge_tmp.node2.t.name == T_old[edge].t.name)
                             {
+                                printf("find\n");
                                 e_old = edge;
-                                miniflag = 1;
                                 break;
                             }
                         }
-                        if (miniflag)
+                        if (e_old == edge)
                         {
+                            print_edges(&edge_tmp, 0);
                             // direction = indexes[edge_tmp.node2] > indexes[edge_tmp.node1]; /* ошибка */
                             int idx1 = indexes[edge_tmp.node1.t.name], idx2 = indexes[edge_tmp.node2.t.name];  
                             direction = compair_idx(idx1, idx2, lenSub);
+                            printf("direction: %d\n", direction);
                         }
                         flag_neighb = 1;
                         break;
@@ -195,7 +200,7 @@ void new_tour_create(twtown *T_old, twtown *T_new, int lenSub, Edge *X, Edge *Y,
                         {
                             e_new++;
                             cur_town = T_new[e_new] = Y[y].node2;
-                            // printf("FIRST IF: %d %d %d %d\n", Y[r].node1, Y[r].node2, Y[y].node1, Y[y].node2);
+                            printf("FIRST IF: %d %d %d %d\n", Y[r].node1.t.name, Y[r].node2.t.name, Y[y].node1.t.name, Y[y].node2.t.name);
                             y = r;
                             break;
                         }
@@ -203,7 +208,7 @@ void new_tour_create(twtown *T_old, twtown *T_new, int lenSub, Edge *X, Edge *Y,
                         {
                             e_new++;
                             cur_town = T_new[e_new] = Y[y].node1;
-                            // printf("SECOND IF: %d %d %d %d\n", Y[r].node1, Y[r].node2, Y[y].node1, Y[y].node2);
+                            printf("SECOND IF: %d %d %d %d\n", Y[r].node1.t.name, Y[r].node2.t.name, Y[y].node1.t.name, Y[y].node2.t.name);
                             y = r;
                             break;
                         }
@@ -213,7 +218,7 @@ void new_tour_create(twtown *T_old, twtown *T_new, int lenSub, Edge *X, Edge *Y,
                 {
                     break;
                 }
-                // printf("iter end %d\n", e_new);
+                printf("iter end %d\n", e_new);
             }
             // printf("go out\n");
         }
@@ -368,6 +373,16 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                                 /* 6a create T1 and check T1 is tour */
                                 twtown T1[lenSub];
                                 printf("New tour create\n");
+
+                                FILE *output = NULL;
+                                output = fopen("test.bin", "wb");
+                                fwrite(&i, sizeof(int), 1, output);
+                                fwrite(T, sizeof(twtown) * lenSub, 1, output);
+                                fwrite(X, sizeof(twtown) * (i+1), 1, output);
+                                fwrite(Y, sizeof(twtown) * (i+1), 1, output);
+                                fwrite(neighbours, sizeof(twtown) * lenSub * 2, 1, output);
+                                fwrite(indexes, sizeof(int) * lenSub, 1, output);
+                                fclose(output);
                                 new_tour_create(T, T1, lenSub, X, Y, i, neighbours, indexes, Xindex, Yindex);
                                 // Edge *T1 = new_tour_create(T, T1, lenSub, X, Y, i, neighbours, indexes);
                                 printf("here 6a\n");
