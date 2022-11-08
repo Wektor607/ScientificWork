@@ -57,26 +57,15 @@ void new_tour_create(halfmatrix *m,twtown *T_old, twtown *T_new, int lenSub, Edg
     }
     else if (i == 2) /* 3-opt */
     {
-        int min = X[0].idx1, central = X[0].idx1, max = X[0].idx1;
-        for(int r = 0; r < 3; ++r)
-        {
-            if(X[r].idx1 < min)
-            {
-                min = X[r].idx1;
-            }
-        }
-        for(int r = 0; r < 3; ++r)
-        {
-            if(X[r].idx1 > max)
-            {
-                max = X[r].idx1;
-            }
-        }
+        int min = my_min(my_min(X[0].idx1, X[1].idx1), X[2].idx1);
+        int max = my_max(my_max(X[0].idx1, X[1].idx1), X[2].idx1);
+        int central;
         for(int r = 0; r < 3; ++r)
         {
             if(X[r].idx1 < max && X[r].idx1 > min)
             {
                 central = X[r].idx1;
+                break;
             }
         }
         reverse_segment_if_better(m, T_new, min, central, max);
