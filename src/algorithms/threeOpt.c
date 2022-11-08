@@ -38,7 +38,7 @@ double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
     // printf("\n--*--\nOld total time: %lf\n", best);
     // printf("Old list: "); printTwTownList(subcopy, lenSub); putchar('\n');
 
-    int mode;
+    /* int mode;
 
     for(int a = 0; a < lenSub; a++) 
     {
@@ -98,8 +98,37 @@ double lkh3optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
                 }
             }
         }
+    } */
+
+    for(int a = 0; a < lenSub - 4; a++) 
+    {
+        for(int b = a + 2; b < lenSub - 2; b++) 
+        {
+            //for(int c = b + 2; c < lenSub + (a > 0); c++) потом сделать
+            for(int c = b + 2; c < lenSub; c++)
+            {
+                reverse_segment_if_better(m, subcopy, a, b, c, lenSub);
+                newd = subtourdistanceTw(subcopy, lenSub, m, *timer, endTime);
+                
+                if(newd != -1 && (best == -1 || newd < best)) {
+                    best = newd;
+                    //цикл копирования subcopy -> sub
+                    for(int j = 0; j < lenSub; j++)
+                    {
+                        sub[j] = subcopy[j];
+                    }
+                }
+                else 
+                {
+                    for(int j = 0; j < lenSub; j++)
+                    {
+                        subcopy[j] = sub[j];
+                    }
+                }
+            } 
+        }
     }
-    
+
     if(best != -1)
     {
         *timer += best;  

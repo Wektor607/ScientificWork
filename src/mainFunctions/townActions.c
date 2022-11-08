@@ -220,3 +220,54 @@ int moveElemsTw(twtown *sub, int start1, int end1, int start2, int end2)
     free(mtmp);
     return 0;
 }
+
+void moveElemsTw2(twtown *sub, int i, int j, int k)
+{
+    twtown *part1 = calloc(sizeof(twtown), j - i);
+    twtown *part2 = calloc(sizeof(twtown), k - j);
+    for (int start = i + 1, idx = 0; start <= j; ++start, ++idx)
+    {
+        part1[idx] = sub[start];
+    }
+    for (int start = j + 1, idx = 0; start <= k; ++start, ++idx)
+    {
+        part2[idx] = sub[start];
+    }
+    for (int idx = i + 1, part_idx = 0; idx < i + k - j + 1; ++idx, ++part_idx)
+    {
+        sub[idx] = part2[part_idx];
+    }
+    for (int idx = i + k - j + 1, part_idx = 0; idx < k; ++idx, ++part_idx)
+    {
+        sub[idx] = part1[part_idx];
+    }
+}
+
+
+void reverse_segment_if_better(halfmatrix *m, twtown *tour, int i, int j, int k, int len)
+{
+    // Given tour [...A-B...C-D...E-F...]
+    int A = tour[i].t.name, B = tour[i+1].t.name, C = tour[j].t.name, D = tour[j+1].t.name, E = tour[k].t.name, F = tour[(k+1) % len].t.name;
+    double d0 = getByTown(m, A, B) + getByTown(m, C, D) + getByTown(m, E, F);
+    double d1 = getByTown(m, A, C) + getByTown(m, B, D) + getByTown(m, E, F);
+    double d2 = getByTown(m, A, B) + getByTown(m, C, E) + getByTown(m, D, F);
+    double d3 = getByTown(m, A, D) + getByTown(m, E, B) + getByTown(m, C, F);
+    double d4 = getByTown(m, F, B) + getByTown(m, C, D) + getByTown(m, E, A);
+
+    if (d0 > d1)
+    {
+        reverseTownTw(tour, i, j);
+    }
+    else if (d0 > d2)
+    {
+        reverseTownTw(tour, j, k);
+    }
+    else if (d0 > d4)
+    {
+        reverseTownTw(tour, i, k);
+    }
+    else if (d0 > d3)
+    {
+        moveElemsTw2(tour, i, j, k);
+    }
+}

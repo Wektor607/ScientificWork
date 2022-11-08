@@ -23,9 +23,9 @@ double lkh2optTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const do
         return -1;
     }
 
-	for(int a = 0; a < lenSub; a++)
+	for(int a = 0; a < lenSub - 2; a++)
 	{
-		for(int b = a + 1; b < lenSub; b++)
+		for(int b = a + 2; b < lenSub; b++)
 		{
 			reverseTownTw(subcopy, my_min(a, b), my_max(a, b));
 			
