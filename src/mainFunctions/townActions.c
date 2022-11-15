@@ -135,91 +135,91 @@ void printTwTownList(const twtown* towns, int counttowns) {
 
 void reverseTownTw(twtown *sub, int i, int j)
 {
-    // int s = (j - i) / 2;
-    // for (int k = 1; k <= s; ++k)
-    // {
-    //     swapTw(&sub[i + k], &sub[j - k + 1]);
+    int s = (j - i) / 2;
+    for (int k = 1; k <= s; ++k)
+    {
+        swapTw(&sub[i + k], &sub[j - k + 1]);
+    }
+    // int s = (j + i) / 2;
+    // if((j + i) % 2 == 1) {
+    //     for(int k = 0; k < (j - i + 1) / 2; k++)
+    //     {
+    //         swapTw(&sub[s - k], &sub[s+1+k]);
+    //     }
+    // } else {
+    //     for(int k = 0; k < (j - i) / 2; k++)
+    //     {
+    //         swapTw(&sub[s-1-k], &sub[s+1+k]);
+    //     }
     // }
-    int s = (j + i) / 2;
-    if((j + i) % 2 == 1) {
-        for(int k = 0; k < (j - i + 1) / 2; k++)
-        {
-            swapTw(&sub[s - k], &sub[s+1+k]);
-        }
-    } else {
-        for(int k = 0; k < (j - i) / 2; k++)
-        {
-            swapTw(&sub[s-1-k], &sub[s+1+k]);
-        }
-    }
 }
 
-int moveElemsTw(twtown *sub, int start1, int end1, int start2, int end2)
-{
-    int difference = (end1 - start1 - (end2 - start2));
+// int moveElemsTw(twtown *sub, int start1, int end1, int start2, int end2)
+// {
+//     int difference = (end1 - start1 - (end2 - start2));
 
-    twtown tmp;
+//     twtown tmp;
 
-    twtown *mtmp = (twtown*)malloc(abs(difference) * sizeof(twtown));
-    if(mtmp == NULL) 
-    {
-        return -1;
-    }
-    for(int i = 0; i < abs(difference); i++) 
-    {
-        if(difference > 0) 
-        {
-            mtmp[i] = sub[end1 + 1 - difference + i];
-        } 
-        else if(difference < 0) 
-        {
-            mtmp[i] = sub[start2 + i];
-        }
-    }
+//     twtown *mtmp = (twtown*)malloc(abs(difference) * sizeof(twtown));
+//     if(mtmp == NULL) 
+//     {
+//         return -1;
+//     }
+//     for(int i = 0; i < abs(difference); i++) 
+//     {
+//         if(difference > 0) 
+//         {
+//             mtmp[i] = sub[end1 + 1 - difference + i];
+//         } 
+//         else if(difference < 0) 
+//         {
+//             mtmp[i] = sub[start2 + i];
+//         }
+//     }
 
-    if(difference > 0) 
-    {
+//     if(difference > 0) 
+//     {
 
-        for(int i = 0; i < end2 - end1; i++) 
-        {
-            sub[end1 + 1 - difference + i] = sub[end1 + 1 + i];
-        }
+//         for(int i = 0; i < end2 - end1; i++) 
+//         {
+//             sub[end1 + 1 - difference + i] = sub[end1 + 1 + i];
+//         }
 
-        for(int i = 0; i < end2 - start2 + 1; i++) 
-        {
-            tmp = sub[start1 + i];
-            sub[start1 + i] = sub[start2 + i - difference];
-            sub[start2 + i - difference] = tmp;
-        }
+//         for(int i = 0; i < end2 - start2 + 1; i++) 
+//         {
+//             tmp = sub[start1 + i];
+//             sub[start1 + i] = sub[start2 + i - difference];
+//             sub[start2 + i - difference] = tmp;
+//         }
 
-        for(int i = 0; i < abs(difference); i++) 
-        {
-            sub[end2 + 1 - difference +i] = mtmp[i];
-        }
+//         for(int i = 0; i < abs(difference); i++) 
+//         {
+//             sub[end2 + 1 - difference +i] = mtmp[i];
+//         }
 
-    } 
-    else if(difference < 0) 
-    {
+//     } 
+//     else if(difference < 0) 
+//     {
 
-        for(int i = 0; i < end1 - start1 + 1; i++) {
-            tmp = sub[start1 + i];
-            sub[start1 + i] = sub[start2 - difference + i];
-            sub[start2 - difference + i] = tmp;
-        }
+//         for(int i = 0; i < end1 - start1 + 1; i++) {
+//             tmp = sub[start1 + i];
+//             sub[start1 + i] = sub[start2 - difference + i];
+//             sub[start2 - difference + i] = tmp;
+//         }
 
-        for(int i = 0; i < start2-start1; i++) {
-            sub[start2 - difference - 1 - i] = sub[start2 - 1 - i];
-        }
+//         for(int i = 0; i < start2-start1; i++) {
+//             sub[start2 - difference - 1 - i] = sub[start2 - 1 - i];
+//         }
 
-        for(int i = 0; i < abs(difference); i++) {
-            sub[start1 + i] = mtmp[i];
-        }
+//         for(int i = 0; i < abs(difference); i++) {
+//             sub[start1 + i] = mtmp[i];
+//         }
 
-    }
+//     }
 
-    free(mtmp);
-    return 0;
-}
+//     free(mtmp);
+//     return 0;
+// }
 
 void moveElemsTw2(twtown *sub, int i, int j, int k)
 {
@@ -229,18 +229,24 @@ void moveElemsTw2(twtown *sub, int i, int j, int k)
     {
         part1[idx] = sub[start];
     }
+    
     for (int start = j + 1, idx = 0; start <= k; ++start, ++idx)
     {
         part2[idx] = sub[start];
     }
+
     for (int idx = i + 1, part_idx = 0; idx < i + k - j + 1; ++idx, ++part_idx)
     {
         sub[idx] = part2[part_idx];
     }
-    for (int idx = i + k - j + 1, part_idx = 0; idx < k; ++idx, ++part_idx)
+
+    for (int idx = i + k - j + 1, part_idx = 0; idx <= k; ++idx, ++part_idx)
     {
         sub[idx] = part1[part_idx];
     }
+
+    free(part1);
+    free(part2);
 }
 
 
@@ -253,7 +259,7 @@ void reverse_segment_if_better(halfmatrix *m, twtown *tour, int i, int j, int k,
     double d2 = getByTown(m, A, B) + getByTown(m, C, E) + getByTown(m, D, F);
     double d3 = getByTown(m, A, D) + getByTown(m, E, B) + getByTown(m, C, F);
     double d4 = getByTown(m, F, B) + getByTown(m, C, D) + getByTown(m, E, A);
-
+    
     if (d0 > d1)
     {
         reverseTownTw(tour, i, j);
