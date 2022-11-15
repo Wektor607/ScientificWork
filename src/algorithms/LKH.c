@@ -26,16 +26,16 @@ void print_tour(twtown *T, int n)
 {
     for(int e = 0; e < n-1; ++e)
     {
-        // printf("%d---%d, ", T[e].t.name, T[e+1].t.name);
+        printf("%d---%d, ", T[e].t.name, T[e+1].t.name);
     }
-    // printf("\n");
+    printf("\n");
 }
 
 void print_edges(Edge *E, int n)
 {
     for(int e = 0; e < n+1; ++e)
     {
-        // printf("%d---%d, ", E[e].node1.t.name, E[e].node2.t.name);
+        // printf("%d---%d, ", E[e].idx1, E[e].idx2);
     }
     // printf("\n");
 }
@@ -68,11 +68,205 @@ void new_tour_create(halfmatrix *m,twtown *T_old, twtown *T_new, int lenSub, Edg
                 break;
             }
         }
-        reverse_segment_if_better(m, T_new, min, central, max);
+        reverse_segment_if_better(m, T_new, min, central, max, lenSub);
     }
     else if (i > 2) /* k-opt */
     {
-
+        // printf("START\n");
+        //print_edges(X, i);
+        //print_edges(Y, i);
+        bool direction = 1;
+        T_new[0] = T_old[0];
+        for (int e_new = 1, prev = 0, e_old = 1; e_new < lenSub; ++e_new)
+        {
+            // printf("PREV: %d\n", prev);
+            // printf("E_OLD: %d\n", e_old);
+            //print_tour(T_new, lenSub);
+            //printf("%d\n", T_new[e_new-1].t.name);
+            bool change_edge = 0;
+            /* printf("%d\n", e_old);
+            printf("%d\n", Xindex[e_old]);
+            //printf("X[x]: %d\n", X[Xindex[e_old]].node1); */
+        /*  if (Xindex[e_old] != -1)
+            {
+                change_edge = 1;
+            } */
+            /* printf("ne upal\n"); */
+            for (int x = 0; x <= i; ++x)
+            {
+                if (X[x].idx1 == prev && X[x].idx2 == e_old ||
+                    X[x].idx1 == e_old && X[x].idx2 == prev)
+                {
+                    change_edge = 1;
+                    break;
+                }
+            }
+            //printf("CHANGE\n");
+            
+            if (!change_edge) /* не меняем ребро */
+            {
+                T_new[e_new] = T_old[e_old];
+                // printf("T_new_not_change[%d]: %d\n", e_new, T_new[e_new].t.name);
+                prev = e_old;
+                if (direction)
+                {
+                    e_old = (e_old + 1) % lenSub; 
+                }
+                else
+                {
+                    e_old = e_old == 0 ? lenSub - 1 : e_old - 1;
+                }
+            }
+            else /* меняем ребро */
+            {
+                //printf("here\n");
+                if (e_new == 1) /* не начинаем с измененённого ребра */
+                {
+                    prev = e_old;
+                    e_old = (e_old + 1) % lenSub;
+                    T_new[0] = T_old[prev];
+                    // printf("bad start %d %d\n", 0, T_new[0].t.name);
+                    e_new--;
+                    continue;
+                }
+                int y = 0;
+                int cur_town;
+                /* Ищем Y, который будет следующим ребром в T_new и запоминаем второй его конец*/
+                for (; y <= i; ++y)
+                {
+                    if (Y[y].idx1 == indexes[T_new[e_new - 1].t.name])
+                    {
+                        e_old = Y[y].idx2;
+                        cur_town = Y[y].idx2;
+                        T_new[e_new] = T_old[Y[y].idx2];
+                        break;
+                    }
+                    if (Y[y].idx2 == indexes[T_new[e_new - 1].t.name])
+                    {
+                        e_old = Y[y].idx1;
+                        cur_town = Y[y].idx1;
+                        T_new[e_new] = T_old[Y[y].idx1];
+                        break;
+                    }
+                }
+                // printf("T_new_start[%d]: %d\n", e_new, T_new[e_new].t.name);
+                //printf("YES\n");
+                /* Цикл работающий до тех пор пока в T_new записываем подряд Y */
+                while(e_new < lenSub-1)
+                {
+                    int flag_neighb = 0;
+                    for (int neighb = 0; neighb < 2; ++neighb)
+                    {
+                        /* edge_tmp - два вариант ребер на старом туре, которые соединены с Y */
+                        int idx1 = indexes[T_new[e_new].t.name];
+                        Edge edge_tmp = edge_init(m, T_new[e_new], neighbours[idx1][neighb], idx1, indexes[neighbours[idx1][neighb].t.name]);
+                        //print_edges(&edge_tmp, 0);
+                        int flag = 1;
+                        /* Проверяем ялвяется ли edge_tmp теми ребрами, которые необходимо убрать из тура */
+                        //int flag_old = 1;
+                        for (int n = 0; n <= i; ++n)
+                        {
+                            if (edge_equal(edge_tmp, X[n]))
+                            {
+                                // flag = 0;
+                                // printf("%d %d %d %d\n", edge_tmp.idx1, edge_tmp.idx2, X[n].idx1, X[n].idx2);
+                                // print_edges(&edge_tmp, 0);
+                                flag = 0;
+                                break;
+                            }
+                        }
+                        // int idx1 = indexes[edge_tmp.node1], idx2 = indexes[edge_tmp.node2]; 
+                        // if (compair_idx(idx1, idx2, lenSub))
+                        // {
+                        //     if(edge_equal(edge_tmp, X[Xindex[idx1]]))
+                        //         flag = 0;
+                        // }
+                        // else if (edge_equal(edge_tmp, X[Xindex[idx2]]))
+                        // {
+                        //     flag = 0;
+                        // }
+                        // if(flag_old != flag)
+                        // {
+                        //     for(int x_idx = 0; x_idx < lenSub; ++x_idx)
+                        //     {
+                        //         printf("Xindex[%d]: %d\n", x_idx, Xindex[x_idx]);
+                        //     }
+                        //     for(int j = 0; j <= i; ++j)
+                        //     {
+                        //         printf("X[%d]: %d %d\n", j, X[j].node1, X[j].node2);
+                        //     }
+                        //     printf("edge_tmp: %d %d X[Xindex[idx1]]: %d %d X[Xindex[idx2]]: %d %d\n", edge_tmp.node1, edge_tmp.node2, X[Xindex[idx1]].node1, X[Xindex[idx1]].node2, X[Xindex[idx2]].node1, X[Xindex[idx2]].node2);
+                        // }
+                        // Поиск номера следующего ребра в старом туре и проверка направления относительно старого тура
+                        if (flag)
+                        {
+                            //print_edges(&edge_tmp, 0);
+                            //printf("%d\n", edge_tmp.idx2);
+                            /* int edge = 0;
+                            for(; edge < lenSub; ++edge)
+                            {
+                                if(edge_tmp.idx2 == T_old[edge].t.name)
+                                {
+                                    //printf("find\n");
+                                    e_old = edge;
+                                    break;
+                                }
+                            } */
+                            prev = edge_tmp.idx1;
+                            e_old = edge_tmp.idx2;
+                            direction = compair_idx(edge_tmp.idx1, edge_tmp.idx2, lenSub);
+                            /* if (e_old == edge)
+                            {
+                                //print_edges(&edge_tmp, 0);
+                                // direction = indexes[edge_tmp.node2] > indexes[edge_tmp.node1]; /* ошибка */
+                                
+                                //printf("direction: %d\n", direction);
+                            //}
+                            flag_neighb = 1;
+                            break;
+                        }
+                    }
+                    //printf("stop neighb\n");
+                    /* Оба соседа оказались X */
+                    if(!flag_neighb)
+                    {
+                        // printf("I am hear!\n");
+                        for(int r = 0; r <= i; ++r)
+                        {
+                            if(Y[r].idx1 == cur_town && y != r)
+                            {
+                                e_new++;
+                                cur_town = Y[r].idx2;
+                                T_new[e_new] = T_old[Y[r].idx2];
+                                // printf("FIRST IF: %d %d %d %d\n", Y[r].idx1, Y[r].idx2, Y[y].idx1, Y[y].idx2);
+                                y = r;
+                                break;
+                            }
+                            if(Y[r].idx2 == cur_town && y != r)
+                            {
+                                e_new++;
+                                cur_town = Y[r].idx1;
+                                T_new[e_new] = T_old[Y[r].idx1];
+                                // printf("SECOND IF: %d %d %d %d\n", Y[r].idx1, Y[r].idx2, Y[y].idx1, Y[y].idx2);
+                                y = r;
+                                break;
+                            }
+                            // printf("%d %d %d %d %d\n", Y[r].idx1, Y[r].idx2, cur_town, y, r);
+                        }
+                        // printf("T_new_cycle[%d]: %d\n", e_new, T_new[e_new].t.name);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                    //printf("iter end %d %d\n", e_new, T_new[e_new].t.name);
+                    //print_tour(T_new, lenSub);
+                }
+                // printf("go out\n");
+            }
+        }
+        // print_tour(T_new, lenSub);
+        // printf("end\n");
     }
     else
     {
@@ -83,6 +277,7 @@ void new_tour_create(halfmatrix *m,twtown *T_old, twtown *T_new, int lenSub, Edg
 double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double endTime, double zeroParam1, double zeroParam2, int countTowns, int dist_param)
 {
     depoShift(lenSub, sub);
+    // print_tour(sub, lenSub);
     // printf("%d\n", lenSub);
     /* 1 Create starting tour T */
     //Edge T[lenSub];
@@ -112,7 +307,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
     neighbours[0][0] = sub[lenSub - 1];
     neighbours[lenSub - 1][1] = sub[0];
     indexes[sub[lenSub-1].t.name] = lenSub - 1;
-    print_tour(T, lenSub);
+    // print_tour(T, lenSub);
     /* for (int i = 0; i < lenSub; ++i)
     {
         // printf("%d %d %d\n", sub[i].t.name, neighbours[i][0], neighbours[i][1]);
@@ -154,7 +349,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                 for (int t3_idx = 0; t3_idx < lenSub; ++t3_idx)
                 {
                     twtown t3 = T[t3_idx];
-                    int prev_idx = t3.t.name; /* t_(2i-1) */
+                    // int prev_idx = t3_idx; /* t_(2i-1) */
                     if(t3.t.name == neighbours[t2_idx][0].t.name || t3.t.name == neighbours[t2_idx][1].t.name || t3.t.name == t2[t2_var].t.name)
                     {
                         continue;
@@ -199,19 +394,21 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                             }
                             bool flag6 = 0;
                             // printf("IN FLAG6\n");
+
                             for (; t2i_var < 2; ++t2i_var)
                             {
                                 // // printf("START X[i]\n");
                                 int t2i_idx = indexes[t2i[t2i_var].t.name];
+                                X[i] = edge_init(m, xi_node1, t2i[t2i_var], Y[i-1].idx2, t2i_idx);
                                 if(compair_idx(Y[i-1].idx2, t2i_idx, lenSub))
                                 {
                                     Xindex[Y[i-1].idx2] = i;
-                                    X[i] = edge_init(m, xi_node1, t2i[t2i_var], Y[i-1].idx2, t2i_idx);
+                                    // X[i] = edge_init(m, xi_node1, t2i[t2i_var], Y[i-1].idx2, t2i_idx);
                                 }
                                 else
                                 {
                                     Xindex[t2i_idx] = i;
-                                    X[i] = edge_init(m, t2i[t2i_var], xi_node1, t2i_idx, Y[i-1].idx2);
+                                    // X[i] = edge_init(m, t2i[t2i_var], xi_node1, t2i_idx, Y[i-1].idx2);
                                 }
                                 Y[i] = edge_init(m, t2i[t2i_var], t1_var, t2i_idx, t1_idx); /* join t2i t1 */
                                 if(compair_idx(t1_idx, t2i_idx, lenSub))
@@ -312,7 +509,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                                             indexes[T1[e + 1].t.name] = e + 1;
                                             // // printf("indexes[e]: %d indexes[e+1]: %d\n", indexes[e],indexes[e+1]);
                                             // // printf("NEW: %d\n", indexes[sub_temp[e + 1].t.name]);
-                                            neighbours[e][1] = T1[e];
+                                            neighbours[e][1] = T1[e + 1];
                                             // // printf("NEW NEIGHBOUR 1: %d\n", neighbours[indexes[e]][1]);
                                             neighbours[e + 1][0] = T1[e];
                                             // // printf("NEW NEIGHBOUR 2: %d\n", neighbours[indexes[e + 1]][0]);
@@ -320,7 +517,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                                         }
                                     }
                                     // // printf("END CYCLE\n");
-                                    neighbours[lenSub - 1][1] = T1[lenSub-1];
+                                    neighbours[lenSub - 1][1] = T1[0];
                                     // // printf("FIRST NEIGHBOUR\n");
                                     neighbours[0][0] = T1[lenSub - 1];
                                     // // printf("SECOND NEIGHBOUR\n");

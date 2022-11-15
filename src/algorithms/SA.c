@@ -12,7 +12,7 @@ void GenerateStateCandidateTw(twtown *sub, int lenSub)
     {
         sub_copy[i] = sub[i];
     }
-
+    
     int indexA = rand() % lenSub;
     int indexB = rand() % lenSub;
     while(indexA == indexB){
@@ -33,6 +33,7 @@ void GenerateStateCandidateTw(twtown *sub, int lenSub)
     {
         sub[i] = sub_copy[i];
     }
+    
     free(sub_copy);
 }
 
@@ -49,12 +50,13 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
         sub_old_current[i] = sub[i];
     }
 
-    double candidate_Energy, p, current_Energy = 0;
-    current_Energy = subtourdistanceTw(sub_current, lenSub, m, *timer, endTime);
+    double candidate_Energy, p;
+    double current_Energy = subtourdistanceTw(sub_current, lenSub, m, *timer, endTime);
 
     int T = tmax;
 
-    for(int k = 0; T >= tmin; T = tmax / (k + 1), k++) {
+    for(int k = 0; T >= tmin; T = tmax / (k + 1), k++) 
+    {
         GenerateStateCandidateTw(sub_current, lenSub);
         candidate_Energy = subtourdistanceTw(sub_current, lenSub, m, *timer, endTime);
 
@@ -66,7 +68,7 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
                 sub_old_current[i] = sub_current[i];
             }
         }
-        else if(current_Energy != -1 && candidate_Energy >= current_Energy && candidate_Energy != -1)
+        else if(current_Energy != -1 && candidate_Energy != -1 && candidate_Energy >= current_Energy)
         {
             p = exp((current_Energy - candidate_Energy) / T);
             if(p >= (rand() / RAND_MAX))
@@ -85,7 +87,7 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
                 }
             }
         }
-        else if(candidate_Energy == -1)
+        else if(candidate_Energy == -1 && current_Energy != -1)
         {
             for(int i = 0; i < lenSub; i++)
             {
@@ -94,20 +96,20 @@ double saTw(twtown *sub, int lenSub, halfmatrix *m, double* timer, const double 
         }
     }
     
-    double best = subtourdistanceTw(sub_current, lenSub, m, *timer, endTime);
-    if(best != -1)
+    // double best = subtourdistanceTw(sub_old_current, lenSub, m, *timer, endTime);
+    if(current_Energy != -1)
     {
         for(int p = 0; p < lenSub; ++p)
         {
-            sub[p] = sub_current[p];
+            sub[p] = sub_old_current[p];
         }
+
+        *timer += current_Energy;
     }
     
-    if(best != -1)
-    {
-        *timer += best;
-    }
+
     free(sub_current);
     free(sub_old_current);
-    return best;
+
+    return current_Energy;
 }
