@@ -35,9 +35,9 @@ void print_edges(Edge *E, int n)
 {
     for(int e = 0; e < n+1; ++e)
     {
-        // printf("%d---%d, ", E[e].idx1, E[e].idx2);
+        printf("%d---%d, ", E[e].idx1, E[e].idx2);
     }
-    // printf("\n");
+    printf("\n");
 }
 
 bool compair_idx(int idx1, int idx2, int lenSub)
@@ -51,9 +51,11 @@ void new_tour_create(halfmatrix *m,twtown *T_old, twtown *T_new, int lenSub, Edg
     {
         T_new[j] = T_old[j];
     }
+
     if (i == 1) /* 2-opt */
     {
         reverseTownTw(T_new, my_min(X[0].idx1, X[1].idx1), my_max(X[0].idx1, X[1].idx1));
+
     }
     else if (i == 2) /* 3-opt */
     {
@@ -334,18 +336,20 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
             for (int t2_var = 0; t2_var < 2; t2_var++)
             {
                 int t2_idx = indexes[t2[t2_var].t.name];
+                X[0] = edge_init(m, t1_var, t2[t2_var], t1_idx, t2_idx);
                 if(compair_idx(t1_idx, t2_idx, lenSub))
                 {
                     Xindex[t1_idx] = 0;
-                    X[0] = edge_init(m, t1_var, t2[t2_var], t1_idx, t2_idx);
+                    // X[0] = edge_init(m, t1_var, t2[t2_var], t1_idx, t2_idx);
                 }
                 else
                 {
                     Xindex[t2_idx] = 0;
-                    X[0] = edge_init(m, t2[t2_var], t1_var, t2_idx, t1_idx);
+                    // X[0] = edge_init(m, t2[t2_var], t1_var, t2_idx, t1_idx);
                 }
                 //Xindex[t1] = 0;
                 /* 4  Choose Y[0] */
+
                 for (int t3_idx = 0; t3_idx < lenSub; ++t3_idx)
                 {
                     twtown t3 = T[t3_idx];
@@ -368,7 +372,6 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                     {
                         continue;
                     }
-                    
                     bool flag8 = 0, flag9 = 0;
                     int y2_alt = -1, x2_alt = -1;
                     /* 5 После выбора X[0] и Y[0] делаем i = i + 1*/
@@ -386,6 +389,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                             twtown t2i[2] = {neighbours[Y[i-1].idx2][0], neighbours[Y[i-1].idx2][1]};
                             twtown xi_node1 = T[Y[i - 1].idx2]; /* t_(2i-1) */
                             /* 6 Choose X[i] */
+                            // printf("FLAG 6 START\n");
                             int t2i_var = 0;
                             if(i == 1 && flag9) {
                                 t2i_var = (x2_alt != -1) ? 1 : 2;
@@ -398,6 +402,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                             for (; t2i_var < 2; ++t2i_var)
                             {
                                 // // printf("START X[i]\n");
+                                printf("START CYCLE\n");
                                 int t2i_idx = indexes[t2i[t2i_var].t.name];
                                 X[i] = edge_init(m, xi_node1, t2i[t2i_var], Y[i-1].idx2, t2i_idx);
                                 if(compair_idx(Y[i-1].idx2, t2i_idx, lenSub))
@@ -410,7 +415,12 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                                     Xindex[t2i_idx] = i;
                                     // X[i] = edge_init(m, t2i[t2i_var], xi_node1, t2i_idx, Y[i-1].idx2);
                                 }
+                                // printf("%d %d %d %d\n", t2i_var, t2_idx, t1_idx, i);
+                                print_edges(Y, i);
+                                print_edges(X, i);
+                                printf("%d %d %d %d\n", t2i[t2i_var].t.name, t1_var.t.name, t2i_idx, t1_idx);
                                 Y[i] = edge_init(m, t2i[t2i_var], t1_var, t2i_idx, t1_idx); /* join t2i t1 */
+                                printf("CONTINUE CYCLE 2\n");
                                 if(compair_idx(t1_idx, t2i_idx, lenSub))
                                 {
                                     Yindex[t1_idx] = 0;
@@ -419,7 +429,6 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                                 {
                                     Yindex[t2i_idx] = 0;
                                 }
-                                
                                 /* 6a create T1 and check T1 is tour */
                                 twtown T1[lenSub];
                                 // printf("New tour create\n");
@@ -433,7 +442,9 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                                 fwrite(neighbours, sizeof(twtown) * lenSub * 2, 1, output);
                                 fwrite(indexes, sizeof(int) * lenSub, 1, output);
                                 fclose(output); */
+                                printf("START TOUR\n");
                                 new_tour_create(m, T, T1, lenSub, X, Y, i, neighbours, indexes, Xindex, Yindex);
+                                printf("END\n");
                                 // Edge *T1 = new_tour_create(T, T1, lenSub, X, Y, i, neighbours, indexes);
                                 // printf("here 6a\n");
                                 
@@ -530,7 +541,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                                 flag6 = 1;
                                 break;
                             } /* 6 end */
-                            // printf("FLAG 6 END\n");
+                            printf("FLAG 6 END\n");
                             if(!flag6)
                             {
                                 break;
@@ -609,6 +620,11 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                             for(int neigh = 0; neigh < 2; ++neigh)
                             {
                                 X[i + 1] = edge_init(m, yinode2, neighbours[next_idx][neigh], next_idx, indexes[neighbours[next_idx][neigh].t.name]);
+                                if(neighbours[next_idx][neigh].t.name == t1_var.t.name)
+                                {
+                                    flag7c = 2;
+                                    break;
+                                }
                                 for (int s = 0; s <= i; ++s)
                                 {
                                     if (edge_equal(X[s], X[i+1]))
@@ -632,6 +648,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                                 break;
                             }
                         } /* 7 end */
+                        printf("FLAG 7 END\n");
                         /* подготовка к 8 шагу заранее */
                         if(i == 1)
                         {
@@ -675,7 +692,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                         }
                         // // printf("PRE 5 END\n");
                     } /* 5 end */
-                    // printf("5 END\n");
+                    printf("5 END\n");
                     if (new_tour)
                         break;
                     for(int x_idx = 0; x_idx < lenSub; ++x_idx) 
@@ -684,7 +701,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                             Xindex[x_idx] = -1;  
                     }
                 } /* 4 end */
-                // printf("4 END\n");
+                printf("4 END\n");
                 if (new_tour)
                     break;
                 for(int x_idx = 0; x_idx < lenSub; ++x_idx) 
@@ -693,11 +710,11 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
                 }
                     
             } /* 3 end */
-            // printf("3 END\n");
+            printf("3 END\n");
             if (new_tour)
             {
                 // printf("change tour\n");
-                print_tour(T, lenSub);
+                // print_tour(T, lenSub);
                 break;
             }
             for(int x_idx = 0; x_idx < lenSub; ++x_idx) 
@@ -706,7 +723,7 @@ double lkhTw(twtown *sub, int lenSub, halfmatrix *m, double *timer, const double
             }
             // printf("%d %d %d %d\n", t1_idx, useflag8, useflag9, ynoty);
         } /* 2 end */
-        // printf("2 END\n");
+        printf("2 END\n");
         for(int x_idx = 0; x_idx < lenSub; ++x_idx) 
         { 
             Xindex[x_idx] = -1;  
